@@ -4,13 +4,13 @@
 
 <p align="justify">A continuacion se mostraran 2 imagenes resultantes de aplicar el metodo Sift y Orb </p>
 
-## Sift (Imagenes de carpeta Panoramica_3)
+## Metodo Sift (Imagenes de carpeta Panoramica_3)
 <p  align="center">
    <img src=Imagen_panoramicaSift.png>
 </p>
 
 
-## Orb(Imagenes de carpeta Pano2)
+## Metodo Orb(Imagenes de carpeta Pano2)
 <p  align="center">
    <img src=Imagen_panoramicaorb.png>
 </p>
