@@ -134,7 +134,7 @@ def promedio_imagenes(img_1, img_2):
     return img #Imagen promediada
 
 
-def Recortar(imagen):
+def Recortar(imagen): ## Se crea la funcion recortar para eliminar el exceso de bits negros en la imagen
     puntos = np.where((imagen[:,:,0]>0) * (imagen[:,:,1]>0)* (imagen[:,:,2])>0)
     if(puntos[0].shape[0]>0):
                 max_y = max(puntos[0])
@@ -198,6 +198,6 @@ if __name__ == '__main__':
     for idx, img in enumerate(img_transform):
         prom = promedio_imagenes(prom, img)  #Promedio entre las imagenes obtenidas de la homografia
 
-    prom=Recortar(prom)
+    prom=Recortar(prom) ## Se recorta la imagen para una mejor visualizacion
     cv2.imwrite("Imagen_panoramica" + met +".png", prom) #Se muestra la imagen resultante en pantalla
     cv2.waitKey(0)
