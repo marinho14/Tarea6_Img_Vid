@@ -91,7 +91,7 @@ def Matching(image, image_2,metodo):
         idx2 = match[0].trainIdx
 
         dif = np.sum(np.power(descriptors_1[idx] - descriptors_2[idx2], 2))
-        if (dif < 10000):
+        if (dif < 10000): ## Se filtran los puntos que no coinciden para tener una imagen resultante mas exacta
             points_1.append(np.int32(keypoints_1[idx].pt))
             points_2.append(np.int32(keypoints_2[idx2].pt))
             des_1.append(descriptors_1[idx])
