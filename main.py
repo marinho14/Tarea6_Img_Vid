@@ -42,8 +42,10 @@ def click(event, x, y, flags, param):
     elif event == cv2.EVENT_RBUTTONDOWN:
         flag = True
 
-#Funcion Homography que fue tomada y adaptada de codigo realizado por Julian Quiroga
-def Homography(image, image_2,metodo):
+#Funcion que fue tomada y adaptada de codigo realizado por Julian Quiroga en
+#donde se encuentren los puntos comunes entre 2 imagnes usando los metodos
+#SIft o Orb
+def Matching(image, image_2,metodo):
     image_1 = image
     image_1 = cv2.resize(image_1, (900, 980))
     image_gray_1 = cv2.cvtColor(image_1, cv2.COLOR_BGR2GRAY)
@@ -158,7 +160,7 @@ if __name__ == '__main__':
 
     #Se realiza la homografia a cada una de las imagenes
     for i in range(N-1):
-        a,met = Homography(imagenes[i], imagenes[(i + 1) % len(imagenes)],metodo)
+        a,met = Matching(imagenes[i], imagenes[(i + 1) % len(imagenes)],metodo)
         H_list.append(a)
 
 
@@ -199,5 +201,5 @@ if __name__ == '__main__':
         prom = promedio_imagenes(prom, img)  #Promedio entre las imagenes obtenidas de la homografia
 
     prom=Recortar(prom) ## Se recorta la imagen para una mejor visualizacion
-    cv2.imwrite("Imagen_panoramica" + met +".png", prom) #Se muestra la imagen resultante en pantalla
+    cv2.imwrite("Imagen_panoramica_rec" + met +".png", prom) #Se muestra la imagen resultante en pantalla
     cv2.waitKey(0)
