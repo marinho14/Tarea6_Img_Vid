@@ -43,61 +43,48 @@ def click(event, x, y, flags, param):
         flag = True
 
 #Funcion que fue tomada y adaptada de codigo realizado por Julian Quiroga en
-#donde se encuentren los puntos comunes entre 2 imagnes usando los metodos
-#SIft o Orb
+#donde se encuentran los puntos comunes entre 2 imagnes usando los metodos
+#Sift o Orb
 def Matching(image, image_2,metodo):
     image_1 = image
     image_1 = cv2.resize(image_1, (900, 980))
     image_gray_1 = cv2.cvtColor(image_1, cv2.COLOR_BGR2GRAY)
-    image_draw_1 = np.copy(image_1)
     image_2 = image_2
     image_2 = cv2.resize(image_2, (900, 980))
     image_gray_2 = cv2.cvtColor(image_2, cv2.COLOR_BGR2GRAY)
-    image_draw_2 = np.copy(image_2)
 
     # sift/orb interest points and descriptors
+    # En caso de metodo ser igual a 1 se usa el metodo Sift, en cualquier
+    # otro caso, se usaria el metodo Orb
     if int(metodo) == 1:
         sift = cv2.SIFT_create(nfeatures=10000)  # shift invariant feature transform
         keypoints_1, descriptors_1 = sift.detectAndCompute(image_gray_1, None)
         keypoints_2, descriptors_2 = sift.detectAndCompute(image_gray_2, None)
-        image_draw_1 = cv2.drawKeypoints(image_gray_1, keypoints_1, None)
-        image_draw_2 = cv2.drawKeypoints(image_gray_2, keypoints_2, None)
         bf = cv2.BFMatcher(cv2.NORM_L2)
-        matches = bf.knnMatch(descriptors_1, descriptors_2, k=1)
-        image_matching = cv2.drawMatchesKnn(image_1, keypoints_1, image_2, keypoints_2, matches, None)
+        matches = bf.knnMatch(descriptors_1, descriptors_2, k=2)
         met = "Sift"
-        print("Sift")
+
     else:
         orb = cv2.ORB_create(nfeatures=10000)  # oriented FAST and Rotated BRIEF
         keypoints_1, descriptors_1 = orb.detectAndCompute(image_gray_1, None)
         keypoints_2, descriptors_2 = orb.detectAndCompute(image_gray_2, None)
-        image_draw_1 = cv2.drawKeypoints(image_gray_1, keypoints_1, None)
-        image_draw_2 = cv2.drawKeypoints(image_gray_2, keypoints_2, None)
-        # bf = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)
-        # matches = bf.match(descriptors_1,descriptors_2)
-        # image_matching = cv2.drawMatches(image_1, keypoints_1, image_2, keypoints_2, matches[:10], flags=2)
         bf = cv2.BFMatcher(cv2.NORM_L2)
-        matches = bf.knnMatch(descriptors_1, descriptors_2, k=1)
-        image_matching = cv2.drawMatchesKnn(image_1, keypoints_1, image_2, keypoints_2, matches, None)
+        matches = bf.knnMatch(descriptors_1, descriptors_2, k=2)
         met= "orb"
-        print("orb")
 
     # Retrieve matched points
     points_1 = []
     points_2 = []
-    des_1 = []
-    des_2 = []
-    for idx, match in enumerate(matches):
-        idx2 = match[0].trainIdx
+    idx=0
 
-        dif = np.sum(np.power(descriptors_1[idx] - descriptors_2[idx2], 2))
-        if (dif < 10000): ## Se filtran los puntos que no coinciden para tener una imagen resultante mas exacta
+    # Se aplica el Lowe's ratio test
+    for match, m2 in (matches):
+        if match.distance < 0.6 * m2.distance:
+            idx2 = match.trainIdx
             points_1.append(np.int32(keypoints_1[idx].pt))
             points_2.append(np.int32(keypoints_2[idx2].pt))
-            des_1.append(descriptors_1[idx])
-            des_2.append(descriptors_2[idx2])
-
-    # Compute homography and warp image_1
+        idx = idx + 1
+    # Compute homography and warp image
     H, _ = cv2.findHomography(np.array(points_1), np.array(points_2), method=cv2.RANSAC)
     return H,met
 
@@ -136,7 +123,7 @@ def promedio_imagenes(img_1, img_2):
     return img #Imagen promediada
 
 
-def Recortar(imagen): ## Se crea la funcion recortar para eliminar el exceso de bits negros en la imagen
+def Recortar(imagen): ## Se crea la funcion recortar para eliminar el exceso de pixeles negros en la imagen
     puntos = np.where((imagen[:,:,0]>0) * (imagen[:,:,1]>0)* (imagen[:,:,2])>0)
     if(puntos[0].shape[0]>0):
                 max_y = max(puntos[0])
@@ -201,5 +188,5 @@ if __name__ == '__main__':
         prom = promedio_imagenes(prom, img)  #Promedio entre las imagenes obtenidas de la homografia
 
     prom=Recortar(prom) ## Se recorta la imagen para una mejor visualizacion
-    cv2.imwrite("Imagen_panoramica_rec" + met +".png", prom) #Se muestra la imagen resultante en pantalla
+    cv2.imwrite("Imagen_panoramica_rec2" + met +".png", prom) #Se muestra la imagen resultante en pantalla
     cv2.waitKey(0)
